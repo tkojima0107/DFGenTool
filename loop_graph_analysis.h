@@ -27,7 +27,7 @@
 #ifndef _LOOP_GRAPH_ANALYSIS_H_
 #define _LOOP_GRAPH_ANALYSIS_H_ 1
 
-#include "llvm/Support/CFG.h"
+#include <llvm/Analysis/CFG.h>
 #include <map>
 #include <list>
 

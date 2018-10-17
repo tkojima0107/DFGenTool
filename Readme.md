@@ -1,3 +1,6 @@
+# In this fork
+loop_graph_0.cpp and loop_graph_analysis.h are modified for LLVM 4.0
+
 # Prerequisite
 
 1. Download and install [LLVM-3.4](http://www.llvm.org) and the Clang frontend (version 3.4) following the instructions given in the [Getting Started](http://llvm.org/releases/3.4/docs/GettingStarted.html) manual.

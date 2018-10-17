@@ -25,27 +25,26 @@
  * 
  */
 
-
-#include "llvm/Pass.h"
-#include "llvm/Support/CFG.h"
-#include "llvm/Analysis/LoopPass.h"
-#include "llvm/Analysis/AliasAnalysis.h"
-#include "llvm/Analysis/ScalarEvolution.h"
-#include "llvm/Analysis/MemoryDependenceAnalysis.h"
+#include <llvm/Pass.h>
+#include <llvm/Analysis/CFG.h>
+#include <llvm/Analysis/LoopPass.h>
+#include <llvm/Analysis/AliasAnalysis.h>
+#include <llvm/Analysis/ScalarEvolution.h>
+#include <llvm/Analysis/MemoryDependenceAnalysis.h>
 #include <map>
 #include <list>
-#include "llvm/Analysis/CallGraph.h"
+#include <llvm/Analysis/CallGraph.h>
 #include <set>
-#include "llvm/Support/raw_ostream.h"
+#include <llvm/Support/raw_ostream.h>
 #include "loop_graph_analysis.h"
-#include "llvm/Analysis/PostDominators.h"
+#include <llvm/Analysis/PostDominators.h>
 #include <assert.h>
-#include "llvm/IR/Type.h"
+#include <llvm/IR/Type.h>
 #include <stdio.h>
-#include "llvm/Analysis/DependenceAnalysis.h"
-#include "llvm/ADT/SmallBitVector.h"
-#include "llvm/ADT/ArrayRef.h"
- #include "llvm/ADT/SmallBitVector.h"
+#include <llvm/Analysis/DependenceAnalysis.h>
+#include <llvm/ADT/SmallBitVector.h>
+#include <llvm/ADT/ArrayRef.h>
+#include <llvm/ADT/SmallBitVector.h>
 
 #define NINTERVALS (100)
 #define PRINT_THRESH (0)
@@ -107,16 +106,16 @@ namespace {
 
 			void getAnalysisUsage(AnalysisUsage &AU) const {
 				AU.setPreservesAll();
-				AU.addRequired<PostDominatorTree>();
-				AU.addRequired<LoopInfo>();
-				AU.addRequired<DependenceAnalysis>();
-				AU.addPreserved<DependenceAnalysis>();
-				AU.addRequired<ScalarEvolution>();
-				AU.addPreserved<ScalarEvolution>();
-				AU.addRequired<AliasAnalysis>();
-				AU.addPreserved<AliasAnalysis>();
-				AU.addRequired<MemoryDependenceAnalysis>();
-				AU.addPreserved<MemoryDependenceAnalysis>();
+				AU.addRequired<PostDominatorTreeWrapperPass>();
+				AU.addRequired<LoopInfoWrapperPass>();
+				AU.addRequired<DependenceAnalysisWrapperPass>();
+				AU.addPreserved<DependenceAnalysisWrapperPass>();
+				AU.addRequired<ScalarEvolutionWrapperPass>();
+				AU.addPreserved<ScalarEvolutionWrapperPass>();
+				AU.addRequired<AAResultsWrapperPass>();
+				AU.addPreserved<AAResultsWrapperPass>();
+				AU.addRequired<MemoryDependenceWrapperPass>();
+				AU.addPreserved<MemoryDependenceWrapperPass>();
 			}
 
 			virtual bool doInitialization(Module& M) {	//doInitialization
@@ -125,7 +124,7 @@ namespace {
 
 
 			virtual bool runOnFunction(Function& F) {
-				LI = &getAnalysis<LoopInfo>();
+			  LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
 				for (LoopInfo::iterator I = LI->begin(), E = LI->end(); I != E; ++I)	//gives the collection of Loops
 					ProcessLoop(*I);
 				return false;
@@ -326,7 +325,7 @@ namespace {
 
 			void AddCtrlEdges (Loop* L, unsigned int id) {		//Insert control dependent edges
 
-				PostDominatorTree* PDT = &getAnalysis<PostDominatorTree>();
+			  PostDominatorTree* PDT = &getAnalysis<PostDominatorTreeWrapperPass>().getPostDomTree();
 				map <unsigned int, clust_graph>::iterator loopGraph = graphs.find (id);		//get loop graph
 				assert (loopGraph != graphs.end());
 
@@ -477,10 +476,11 @@ namespace {
 
 						const char *nodeText;
 						switch(listIter->gepNodeType) {
-							case GEP_ADD1: nodeText = "GEP_ADD1\0"; break;
-							case GEP_ADD2: nodeText = "GEP_ADD2\0"; break;
-							case GEP_MULT: nodeText = "GEP_MULT\0"; break;
-							case GEP_SIZE: nodeText = "GEP_SIZE\0"; break;
+						case GEP_ADD1: nodeText = "GEP_ADD1\0"; break;
+						case GEP_ADD2: nodeText = "GEP_ADD2\0"; break;
+						case GEP_MULT: nodeText = "GEP_MULT\0"; break;
+						case GEP_SIZE: nodeText = "GEP_SIZE\0"; break;
+						default: nodeText = "None"; break;
 						}
 						fprintf(lf, "%u [label=\"\t%u %s\", style=filled, fillcolor=lightgrey, shape=oval]\n", listIter->id, listIter->id, nodeText);
 
